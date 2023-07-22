@@ -1,13 +1,33 @@
 # Jenkins-CICD-pipeline-on-AWS
 Implementing a CICD pipeline using Jenkins, Docker, Sonarcube, Github webhook on AWS infrastructure
 
-In this project, we will be deploying dynamic website using Jenkins CICD Pipeline. Sonarcube will be used to test the pipeline for errors and Github webhook to trigger the pipeline.
+In this tutorial, we'll use Jenkins, SonarQube, Docker, and AWS to build an automated CI/CD pipeline for your web application. Every time you push new code to your GitHub repository, this pipeline will automatically build, test, analyze, and deploy your project to your AWS EC2 instance.
 
-Requirements
 
-Configure ec2 instance on AWS infrastructure as Jenkins server. Do same for Sonarqube and Docker
+Prerequisite:
 
-Create a repo on Github and set as webhook for Jenkins.
+Account on GitHub
+
+EC2 Instances knowledge and an AWS account
+
+Understanding of SonarQube, Docker, and Jenkins
+
+Steps to cover:
+Create three EC2 instances with a security group that allows all traffic from the internet.
+
+Install Jenkins, SonarQube, and Docker to each EC2 instance respectively.
+
+Connect Jenkins instance to SonarQube, Docker instances, and to itself also through SSH.
+
+Make those SSH connections password-less generating an ssh-key and saving their IDs.
+
+Install plugin - SSH2 Easy on Jenkins and set server.
+
+Set server groups and server sites of Jenkins, SonarQube, and Docker.
+
+Create a new job at Jenkins and add a git link for your repository with the branch you want to build and deploy.
+
+Add build steps in configuring the pipeline to copy code from Jenkins workspace to SonarQube and Docker instance for analysis and deployment.
 
 On Jenkins VM
 
@@ -97,6 +117,44 @@ sudo apt update
 
 Install docker on ubuntu
 
+sudo apt-get update
+sudo apt-get install \
+    ca-certificates \
+    curl \
+    gnupg
+Add Docker’s official GPG key:
+
+
+
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
+Use the following command to set up the repository:
+
+
+
+echo \
+  "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
+sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+To install the latest version, run:
+
+
+
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+Verify that the Docker Engine installation is successful by running the hello-world image:
+
+
+
+sudo docker run hello-world
+Now, we want to use docker services without the sudo command. So, in order to do so, we have to add this current "ubuntu" user to the docker group.
+
+
+COPY
+sudo usermod -aG docker ubuntu
+newgrp docker
+Now, you can use docker services without sudo command.
+
 Switch to root user
 
 nano /etc/ssh/sshd_config and uncomment pubkeyauthentication yes psswordAuthentication yes save and restart ssh service
@@ -141,5 +199,3 @@ docker run -d -p 8085:80 —name=Onix-website my website and save.
 Build now and comfirm pipeline was succesful. Do check docker ps on docker VM to see the running ps and allow port 8085 on sg for Docker vm
 
 Copy the public ip and paste on the browse with 8085 to validate the webpage
-
-
